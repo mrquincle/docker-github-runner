@@ -1,6 +1,10 @@
+# Caution!
+
+Fork from <https://github.com/tcardonne/docker-github-runner>!
+
 # GitHub Runner
 
-[![Docker Pulls](https://img.shields.io/docker/pulls/tcardonne/github-runner)](https://hub.docker.com/r/tcardonne/github-runner)
+[![Docker Pulls](https://img.shields.io/docker/pulls/mrquincle/github-runner)](https://hub.docker.com/r/mrquincle/github-runner)
 
 -----------
 GitHub allows developers to run GitHub Actions workflows on your own runners.
@@ -22,7 +26,7 @@ docker run -it --name my-runner \
     -e RUNNER_NAME=my-runner \
     -e GITHUB_ACCESS_TOKEN=token \
     -e RUNNER_REPOSITORY_URL=https://github.com/... \
-    tcardonne/github-runner
+    mrquincle/github-runner
 ```
 
 ### Using Docker inside your Actions
@@ -35,7 +39,7 @@ docker run -it --name my-runner \
     -e GITHUB_ACCESS_TOKEN=token \
     -e RUNNER_REPOSITORY_URL=https://github.com/... \
     -v /var/run/docker.sock:/var/run/docker.sock \
-    tcardonne/github-runner
+    mrquincle/github-runner
 ```
 
 ### Using docker-compose.yml
@@ -46,7 +50,7 @@ version: "3.7"
 
 services:
     runner:
-      image: tcardonne/github-runner:latest
+      image: mrquincle/github-runner:latest
       environment:
         RUNNER_NAME: "my-runner"
         RUNNER_REPOSITORY_URL: ${RUNNER_REPOSITORY_URL}

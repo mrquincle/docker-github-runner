@@ -15,18 +15,20 @@ ENV RUNNER_ALLOW_RUNASROOT=true
 ENV GITHUB_ACCESS_TOKEN=""
 ENV AGENT_TOOLSDIRECTORY=/opt/hostedtoolcache
 
-# Labels.
-LABEL maintainer="me@tcardonne.fr" \
+# Labels, note that this docker is derived from tcardonne/github-runner
+# These labels have been changed so Thomas is not bothered by mistakes I've made by adding stuff
+LABEL maintainer="anne@crownstone.rocks" \
     org.label-schema.schema-version="1.0" \
     org.label-schema.build-date=$BUILD_DATE \
     org.label-schema.vcs-ref=$VCS_REF \
-    org.label-schema.name="tcardonne/github-runner" \
+    org.label-schema.name="mrquincle/github-runner" \
     org.label-schema.description="Dockerized GitHub Actions runner." \
-    org.label-schema.url="https://github.com/tcardonne/docker-github-runner" \
-    org.label-schema.vcs-url="https://github.com/tcardonne/docker-github-runner" \
-    org.label-schema.vendor="Thomas Cardonne" \
-    org.label-schema.docker.cmd="docker run -it tcardonne/github-runner:latest"
+    org.label-schema.url="https://github.com/mrquincle/docker-github-runner" \
+    org.label-schema.vcs-url="https://github.com/mrquincle/docker-github-runner" \
+    org.label-schema.vendor="Anne van Rossum" \
+    org.label-schema.docker.cmd="docker run -it mrquincle/github-runner:latest"
 
+# Packages required for the runner
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
     apt-get install -y \
         curl \
@@ -47,6 +49,21 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
     rm -rf /var/lib/apt/lists/* && \
     apt-get clean
 
+# Packages we want for our cmake continuous integration tools
+RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
+    apt-get install -y \
+        cmake \
+        gcc \
+        g++ \
+        make \
+        python3 \
+        python3-pip \
+        wget \
+        libusb-1.0-0 \
+        libsm6 && \
+    rm -rf /var/lib/apt/lists/* && \
+    apt-get clean
+
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 RUN chmod 644 /etc/supervisor/conf.d/supervisord.conf
 
@@ -60,6 +77,7 @@ RUN curl -L -o /usr/local/bin/docker-compose \
     "https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" && \
     chmod +x /usr/local/bin/docker-compose
 
+# Install specific git version because debian package here is only 1:2.20.1-2+deb10u3
 RUN cd /tmp && \
     curl -sL -o git.tgz \
     https://www.kernel.org/pub/software/scm/git/git-${GIT_VERSION}.tar.gz && \
@@ -71,6 +89,12 @@ RUN cd /tmp && \
     rm -rf /tmp/*
 
 RUN mkdir -p /home/runner ${AGENT_TOOLSDIRECTORY}
+
+# Add 00dont-ask file for passwordless sudo
+RUN rm -rf /etc/apt/apt.conf.d/00dont-ask && \
+    touch 00dont-ask && \
+    echo 'APT::Get::Assume-Yes "true";' >> 00dont-ask && \
+    echo 'APT::Get::force-yes "true";' >> 00dont-ask
 
 WORKDIR /home/runner
 
