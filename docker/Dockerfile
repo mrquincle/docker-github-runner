@@ -96,6 +96,10 @@ RUN rm -rf /etc/apt/apt.conf.d/00dont-ask && \
     echo 'APT::Get::Assume-Yes "true";' >> 00dont-ask && \
     echo 'APT::Get::force-yes "true";' >> 00dont-ask
 
+# Install cross compiler though a bluenet/scripts
+RUN git clone -b maintain/build-system-refactor https://github.com/crownstone/bluenet && \
+    cd bluenet/scripts/download && ./download-ubuntu-gcc-arm-none-eabi.sh ../..
+
 WORKDIR /home/runner
 
 RUN GH_RUNNER_VERSION=${GH_RUNNER_VERSION:-$(curl --silent "https://api.github.com/repos/actions/runner/releases/latest" | grep tag_name | sed -E 's/.*"v([^"]+)".*/\1/')} \
